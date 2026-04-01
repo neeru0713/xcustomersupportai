@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 
 // static JSON responses
 const responses = {
@@ -11,6 +17,15 @@ const responses = {
 function Home() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const location = useLocation();
+
+  // 🔥 IMPORTANT FIX: reset when navigating to "/"
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setInput("");
+      setMessages([]);
+    }
+  }, [location.pathname]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -79,6 +94,7 @@ function History() {
     <div>
       <h1>Past Conversations</h1>
 
+      {/* 🔥 Important: exact text + route */}
       <Link to="/">New Query?</Link>
 
       {data.map((item, i) => (
