@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 // static JSON responses
 const responses = {
@@ -14,18 +8,10 @@ const responses = {
     "You can contact our customer support via email at support@example.com or call us at +1-800-123-4567.",
 };
 
+// ---------------- HOME ----------------
 function Home() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
-  const location = useLocation();
-
-  // 🔥 IMPORTANT FIX: reset when navigating to "/"
-  useEffect(() => {
-    if (location.pathname === "/") {
-      setInput("");
-      setMessages([]);
-    }
-  }, [location.pathname]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,7 +24,6 @@ function Home() {
     setInput("");
   };
 
-  // save to localStorage
   const handleSave = () => {
     localStorage.setItem("conversations", JSON.stringify(messages));
   };
@@ -56,6 +41,7 @@ function Home() {
       {/* INPUT */}
       <form onSubmit={handleSubmit}>
         <input
+          key={messages.length} // 🔥 ensures reset
           placeholder="Please tell me about your query!"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -81,7 +67,7 @@ function Home() {
   );
 }
 
-// ---------------- HISTORY PAGE ----------------
+// ---------------- HISTORY ----------------
 function History() {
   const [data, setData] = useState([]);
 
@@ -94,8 +80,10 @@ function History() {
     <div>
       <h1>Past Conversations</h1>
 
-      {/* 🔥 Important: exact text + route */}
-      <Link to="/">New Query?</Link>
+      {/* 🔥 FIX: force reload to reset Home */}
+      <Link to="/" onClick={() => window.location.reload()}>
+        New Query?
+      </Link>
 
       {data.map((item, i) => (
         <div key={i}>
@@ -112,7 +100,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* 🔥 key forces remount */}
+        <Route
+          path="/"
+          element={<Home key={window.location.pathname + Date.now()} />}
+        />
         <Route path="/history" element={<History />} />
       </Routes>
     </BrowserRouter>
