@@ -50,6 +50,15 @@ function Home() {
 
       {/* NAV */}
       <Link to="/history">Past Conversations</Link>
+      <Link
+        to="/"
+        onClick={() => {
+          setInput("");
+          setMessages([]);
+        }}
+      >
+        New Query?
+      </Link>
 
       {/* INPUT */}
       <form onSubmit={handleSubmit}>
