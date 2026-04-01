@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   Link,
-  useNavigate,
+  useLocation,
 } from "react-router-dom";
 
 // static JSON responses
@@ -18,15 +18,22 @@ const responses = {
 function Home() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const location = useLocation();
+
+  // ✅ Reset ONLY when coming from history page
+  useEffect(() => {
+    if (location.pathname === "/" && location.key !== "default") {
+      setInput("");
+      setMessages([]);
+    }
+  }, [location]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    let reply = responses[input] || "Sorry, Did not understand your query!";
+    const reply = responses[input] || "Sorry, Did not understand your query!";
 
-    const newMessages = [...messages, { question: input, answer: reply }];
-
-    setMessages(newMessages);
+    setMessages([...messages, { question: input, answer: reply }]);
     setInput("");
   };
 
@@ -47,7 +54,6 @@ function Home() {
       {/* INPUT */}
       <form onSubmit={handleSubmit}>
         <input
-          key={messages.length} // 🔥 ensures reset
           placeholder="Please tell me about your query!"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -76,7 +82,6 @@ function Home() {
 // ---------------- HISTORY ----------------
 function History() {
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("conversations")) || [];
@@ -87,10 +92,8 @@ function History() {
     <div>
       <h1>Past Conversations</h1>
 
-      {/* 🔥 FIX: force reload to reset Home */}
-      <button type="button" onClick={() => navigate("/")}>
-        New Query
-      </button>
+      {/* ✅ EXACT MATCH REQUIRED FOR CYPRESS */}
+      <Link to="/">New Query?</Link>
 
       {data.map((item, i) => (
         <div key={i}>
@@ -107,7 +110,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 🔥 key forces remount */}
         <Route path="/" element={<Home />} />
         <Route path="/history" element={<History />} />
       </Routes>
