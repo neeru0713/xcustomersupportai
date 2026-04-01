@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 // static JSON responses
 const responses = {
@@ -70,6 +76,7 @@ function Home() {
 // ---------------- HISTORY ----------------
 function History() {
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("conversations")) || [];
@@ -81,9 +88,9 @@ function History() {
       <h1>Past Conversations</h1>
 
       {/* 🔥 FIX: force reload to reset Home */}
-      <Link to="/" onClick={() => window.location.reload()}>
-        New Query?
-      </Link>
+      <button type="button" onClick={() => navigate("/")}>
+        New Query
+      </button>
 
       {data.map((item, i) => (
         <div key={i}>
@@ -101,10 +108,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* 🔥 key forces remount */}
-        <Route
-          path="/"
-          element={<Home key={window.location.pathname + Date.now()} />}
-        />
+        <Route path="/" element={<Home />} />
         <Route path="/history" element={<History />} />
       </Routes>
     </BrowserRouter>
